@@ -23,6 +23,7 @@ Related links:
 Find the table that has the ActionType *ShellLinkCreateFileEvent* - A specially crafted link file (.lnk) was generated. The link file contains unusual attributes that might launch malicious code along with a legitimate file or application.
 </details>
 
+<details>
 <summary>Tip 2</summary>
 The application in installed in the AppData folder, this has its reasons. Use this information to build a detection.
 </details>
