@@ -15,8 +15,10 @@ Related links:
 |-------|-----|
 | kustocon-level2 | 0dc945819ed7b009e2a6c943dd1008e8524734da  |
 
+# Persitence 
 
 ## .lnk file on desktop from AppData
+A user called the servicedesk because a new item appeared on his desktop. You have been called to investigate what happened.
 
 <details>
 <summary>Tip 1</summary>
@@ -42,4 +44,12 @@ DeviceEvents
 | invoke FileProfile(InitiatingProcessSHA256, 10000)
 | where GlobalPrevalence <= Threshold
 ```
+</details>
+
+## Another Persitence Mechanism
+The threat actor managed to install a persitence mechanism on the endpoint. Build a query to list this persitence mechanism.
+
+<details>
+<summary>Tip 1</summary>
+Have a look at the created scheduled tasks on this device.
 </details>
