@@ -2,6 +2,8 @@
 
 In the second level fake pdf converter software is installed on a worksation. It is your job to figure out what this software does and how you can detect such and other potentially malicious/unwanted applications.
 
+⚠️ This exercise uses real malware samples, do not download files unless you are sure you accept the risk of being hacked.
+
 ![Alt text](../Images/ManualFinder.png)
 
 Related links:
@@ -69,3 +71,5 @@ DeviceEvents
 | project-reorder Timestamp, DeviceName, ActionType, InitiatingProcessAccountUpn, ScheduledTaskName, Details
 ```
 </details>
+
+WMI operations
