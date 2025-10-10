@@ -14,6 +14,7 @@ Tip notes 2
 
 <details>
 <summary>Answer</summary>
+
 ```KQL
 QueryLogs
 | take 1
