@@ -2,7 +2,12 @@
 
 ## .lnk file on desktop from AppData
 
-<Tip 1>
+<details>
+<summary>Tip 1</summary>
+</details>
+
+<details>
+<summary>Answer</summary>
 
 ```KQL
 DeviceEvents
@@ -11,15 +16,4 @@ DeviceEvents
 | extend ShellLinkIconPath = parse_json(AdditionalFields).ShellLinkIconPath, ShellLinkWorkingDirectory = parse_json(AdditionalFields).ShellLinkWorkingDirectory
 | where ShellLinkWorkingDirectory has "AppData"
 ```
-</Tip 1>
-
-<Answer>
-
-```KQL
-DeviceEvents
-| where ActionType =~ "ShellLinkCreateFileEvent"
-| where FolderPath has "Desktop"
-| extend ShellLinkIconPath = parse_json(AdditionalFields).ShellLinkIconPath, ShellLinkWorkingDirectory = parse_json(AdditionalFields).ShellLinkWorkingDirectory
-| where ShellLinkWorkingDirectory has "AppData"
-```
-</Answer>
+</details>
