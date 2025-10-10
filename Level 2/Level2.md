@@ -53,3 +53,19 @@ The threat actor managed to install a persitence mechanism on the endpoint. Buil
 <summary>Tip 1</summary>
 Have a look at the created scheduled tasks on this device.
 </details>
+
+# Extend more and with SCAN for advanced
+
+<details>
+<summary>Answer</summary>
+
+```KQL
+let Filters = dynamic(['AppData', '%localappdata%', '%appdata%']);
+DeviceEvents
+| where ActionType in ('ScheduledTaskCreated', 'ScheduledTaskUpdated')
+| where AdditionalFields has_any (Filters)
+| extend ParsedAdditionalFields = parse_json(AdditionalFields)
+| extend ScheduledTaskName = ParsedAdditionalFields.TaskName, Details = parse_json(ParsedAdditionalFields.TaskContent)
+| project-reorder Timestamp, DeviceName, ActionType, InitiatingProcessAccountUpn, ScheduledTaskName, Details
+```
+</details>
