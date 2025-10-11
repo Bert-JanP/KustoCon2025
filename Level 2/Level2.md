@@ -56,7 +56,23 @@ The threat actor managed to install a persitence mechanism on the endpoint. Buil
 Have a look at the created scheduled tasks on this device.
 </details>
 
-# Extend more and with SCAN for advanced
+
+<details>
+<summary>Tip 2</summary>
+Parse the fiels from the *AdditionalFields* column to get a good understanding of the contents of the scheduled task.
+</details>
+
+
+<details>
+<summary>Tip 3</summary>
+Parsed *AdditionalFields*
+
+```KQL
+| extend TaskName = parse_json(AdditionalFields).TaskName, TaskContent = tostring(parse_json(AdditionalFields).TaskContent), SubjectUserName = parse_json(AdditionalFields).SubjectUserName
+| extend Actions = extractjson("$.Actions", TaskContent), Triggers = extractjson("$.Triggers", TaskContent)
+| extend Command =  parse_json(Actions).Exec.Command, Arguments = parse_json(Actions).Exec.Arguments
+```
+</details>
 
 <details>
 <summary>Answer</summary>
@@ -66,10 +82,12 @@ let Filters = dynamic(['AppData', '%localappdata%', '%appdata%']);
 DeviceEvents
 | where ActionType in ('ScheduledTaskCreated', 'ScheduledTaskUpdated')
 | where AdditionalFields has_any (Filters)
-| extend ParsedAdditionalFields = parse_json(AdditionalFields)
-| extend ScheduledTaskName = ParsedAdditionalFields.TaskName, Details = parse_json(ParsedAdditionalFields.TaskContent)
-| project-reorder Timestamp, DeviceName, ActionType, InitiatingProcessAccountUpn, ScheduledTaskName, Details
+| extend TaskName = parse_json(AdditionalFields).TaskName, TaskContent = tostring(parse_json(AdditionalFields).TaskContent), SubjectUserName = parse_json(AdditionalFields).SubjectUserName
+| extend Actions = extractjson("$.Actions", TaskContent), Triggers = extractjson("$.Triggers", TaskContent)
+| extend Command =  parse_json(Actions).Exec.Command, Arguments = parse_json(Actions).Exec.Arguments
+| project-reorder Timestamp, DeviceName, ActionType, InitiatingProcessAccountUpn, TaskName, Command, Arguments
 ```
 </details>
 
+Scan for advanced
 WMI operations
