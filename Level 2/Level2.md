@@ -107,3 +107,36 @@ DeviceEvents
 ```
 
 </details>
+
+## Bonus
+It is not just a pdf converter, there is more to be found in this interesting case. The malware was able to modify its current access token. Can you identify what permissions were added to the *PDFClickUpdater.exe* process?
+
+
+<details>
+<summary>Tip 1</summary>
+Investigate the DeviceEvents table in combination with the ProcessPrimaryTokenModified ActionType.
+
+```KQL
+DeviceEvents
+| where ActionType == "ProcessPrimaryTokenModified"
+```
+
+</details>
+
+<details>
+<summary>Tip 2</summary>
+The application in installed in the AppData folder, this has its reasons. Use this information to build a detection.
+</details>
+
+<details>
+<summary>Answer</summary>
+
+```KQL
+let SeDebugPriv = binary_shift_left(1, 20);
+DeviceEvents
+| where ActionType == "ProcessPrimaryTokenModified"
+| extend CurrentTokenPrivEnabled = tolong(parse_json(AdditionalFields).CurrentTokenPrivEnabled), OriginalTokenPrivEnabled = tolong(parse_json(AdditionalFields).OriginalTokenPrivEnabled)
+| extend PrivilegeDiff = binary_xor(OriginalTokenPrivEnabled, CurrentTokenPrivEnabled)
+| where PrivilegeDiff == SeDebugPriv
+```
+</details>
