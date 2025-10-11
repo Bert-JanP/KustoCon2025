@@ -72,59 +72,42 @@ union isfuzzy=false PreInfectionNetworkEvents,RegKeyEvents, PostInfectionNetwork
 | project-reorder Timestamp, DeviceId, DeviceName, LogType, RemoteUrl, RegistryValueData, ProcessCommandLine, FolderPath, InitiatingProcessCommandLine
 ```
 
-# Persitence 
+# Detection 
 
-## .lnk file on desktop from AppData
-A user called the servicedesk because a new item appeared on his desktop. You have been called to investigate what happened.
+## RunMRU Registry Key
+One of the key indicators of ClickFix campaigns is the *HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU* Registry Key that is set. Use this information to build a detection rule to catch ClickFix campaigns.
 
 <details>
 <summary>Tip 1</summary>
-Find the table that has the ActionType *ShellLinkCreateFileEvent* - A specially crafted link file (.lnk) was generated. The link file contains unusual attributes that might launch malicious code along with a legitimate file or application.
+The base of the detection is shared below. The RunMRU registry value is set and you want to filter on the RunMRU Key, now it is up to you to identify suspicious commands.
+
+The [ClickFix Hunter Project](https://clickfix.carsonww.com/) lists the commandlines of the identified clickfix campaings. Use this knowledge to build a detection.
+
+
+```KQL
+DeviceRegistryEvents
+| where ActionType == "RegistryValueSet"
+| where RegistryKey has "RunMRU"
+```
+
 </details>
+
 
 <details>
 <summary>Tip 2</summary>
-The application in installed in the AppData folder, this has its reasons. Use this information to build a detection.
+Identity the common delimitors of the ClickFix campains, what are the lolbins that are used to drop the malware and which parameters are used to stay undetected by the user?
 </details>
 
 <details>
 <summary>Answer</summary>
 
 ```KQL
-let Threshold = 1000;
-DeviceEvents
-| where ActionType =~ "ShellLinkCreateFileEvent"
-| where FolderPath has "Desktop"
-| extend ShellLinkIconPath = parse_json(AdditionalFields).ShellLinkIconPath, ShellLinkWorkingDirectory = parse_json(AdditionalFields).ShellLinkWorkingDirectory
-| where ShellLinkWorkingDirectory has "AppData"
-// Enrich data with FileProfile
-| invoke FileProfile(InitiatingProcessSHA256, 10000)
-| where GlobalPrevalence <= Threshold
+let Parameters = dynamic(['http', 'https', 'Encoded', 'EncodedCommand', '-e', '-eC', '-enc', "-w", 'iex']);
+let Executables = dynamic(["cmd", "powershell", "curl", "mshta"]);
+DeviceRegistryEvents
+| where ActionType == "RegistryValueSet"
+| where RegistryKey has "RunMRU"
+| where RegistryValueData has_any (Parameters) and RegistryValueData has_any (Executables)
+| project-reorder Timestamp, DeviceId, DeviceName, RegistryValueData, RegistryKey
 ```
 </details>
-
-## Another Persitence Mechanism
-The threat actor managed to install a persitence mechanism on the endpoint. Build a query to list this persitence mechanism.
-
-<details>
-<summary>Tip 1</summary>
-Have a look at the created scheduled tasks on this device.
-</details>
-
-# Extend more and with SCAN for advanced
-
-<details>
-<summary>Answer</summary>
-
-```KQL
-let Filters = dynamic(['AppData', '%localappdata%', '%appdata%']);
-DeviceEvents
-| where ActionType in ('ScheduledTaskCreated', 'ScheduledTaskUpdated')
-| where AdditionalFields has_any (Filters)
-| extend ParsedAdditionalFields = parse_json(AdditionalFields)
-| extend ScheduledTaskName = ParsedAdditionalFields.TaskName, Details = parse_json(ParsedAdditionalFields.TaskContent)
-| project-reorder Timestamp, DeviceName, ActionType, InitiatingProcessAccountUpn, ScheduledTaskName, Details
-```
-</details>
-
-WMI operations

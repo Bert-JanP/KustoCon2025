@@ -24,7 +24,7 @@ A user called the servicedesk because a new item appeared on his desktop. You ha
 
 <details>
 <summary>Tip 1</summary>
-Find the table that has the ActionType *ShellLinkCreateFileEvent* - A specially crafted link file (.lnk) was generated. The link file contains unusual attributes that might launch malicious code along with a legitimate file or application.
+Find the table that has the ActionType ShellLinkCreateFileEvent - A specially crafted link file (.lnk) was generated. The link file contains unusual attributes that might launch malicious code along with a legitimate file or application.
 </details>
 
 <details>
@@ -77,13 +77,13 @@ Have a look at the created scheduled tasks on this device.
 
 <details>
 <summary>Tip 3</summary>
-Parse the fiels from the *AdditionalFields* column to get a good understanding of the contents of the scheduled task.
+Parse the fiels from the AdditionalFields column to get a good understanding of the contents of the scheduled task.
 </details>
 
 
 <details>
 <summary>Tip 4</summary>
-Parsed *AdditionalFields*
+Parsed AdditionalFields
 
 ```KQL
 | extend TaskName = parse_json(AdditionalFields).TaskName, TaskContent = tostring(parse_json(AdditionalFields).TaskContent), SubjectUserName = parse_json(AdditionalFields).SubjectUserName
@@ -105,4 +105,5 @@ DeviceEvents
 | extend Command =  parse_json(Actions).Exec.Command, Arguments = parse_json(Actions).Exec.Arguments
 | project-reorder Timestamp, DeviceName, ActionType, InitiatingProcessAccountUpn, TaskName, Command, Arguments
 ```
+
 </details>
