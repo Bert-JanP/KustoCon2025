@@ -49,22 +49,40 @@ DeviceEvents
 </details>
 
 ## Another Persitence Mechanism
-The threat actor managed to install a persitence mechanism on the endpoint. Build a query to list this persitence mechanism.
+The threat actor managed to install a persitence mechanism on the endpoint. Investiagte the activities of the threat actor. Build a query to list this persitence mechanism.
 
 <details>
 <summary>Tip 1</summary>
+A quick way to investigate what a file did is to combine all EDR logs and list based on Table, ActionType, ProcessCommandLine and InitiatingProcessCommandLine. Note that this query does not scale well if you have large scale infections ;). 
+
+The malware consists out of two executables pdfclick.exe and PDFClickUpdater.exe. Use the results below to hunt down the persitence mechanism.
+
+```KQL
+let SuspiciousFileNames = dynamic(['pdfclick.exe', 'PDFClickUpdater.exe']);
+union Device*
+| where FileName in~ (SuspiciousFileNames) or InitiatingProcessFileName in~ (SuspiciousFileNames)
+| project-reorder Timestamp, Type, ActionType, ProcessCommandLine, InitiatingProcessCommandLine
+| sort by Timestamp asc 
+```
+
+If you do not find you answer here, you may want to have a look at the device timeline. Yes there are events/data in the timeline that is not forwarded to advanced hunting.
+
+</details>
+
+<details>
+<summary>Tip 2</summary>
 Have a look at the created scheduled tasks on this device.
 </details>
 
 
 <details>
-<summary>Tip 2</summary>
+<summary>Tip 3</summary>
 Parse the fiels from the *AdditionalFields* column to get a good understanding of the contents of the scheduled task.
 </details>
 
 
 <details>
-<summary>Tip 3</summary>
+<summary>Tip 4</summary>
 Parsed *AdditionalFields*
 
 ```KQL
