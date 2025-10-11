@@ -106,6 +106,3 @@ DeviceEvents
 | project-reorder Timestamp, DeviceName, ActionType, InitiatingProcessAccountUpn, TaskName, Command, Arguments
 ```
 </details>
-
-Scan for advanced
-WMI operations
