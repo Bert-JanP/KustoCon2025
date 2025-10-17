@@ -111,6 +111,7 @@ DeviceEvents
 ## Bonus
 It is not just a pdf converter, there is more to be found in this interesting case. The malware was able to modify its current access token. Can you identify what permissions were added to the *PDFClickUpdater.exe* process?
 
+Related link: https://downloads.volatilityfoundation.org//omfw/2012/OMFW2012_Gurkok.pdf
 
 <details>
 <summary>Tip 1</summary>
