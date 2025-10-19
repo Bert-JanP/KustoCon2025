@@ -19,6 +19,10 @@ Related links:
 # ClickFix Triage
 The [ClickFix Triage Query](https://kqlquery.com/posts/investigate-clickfix/) has been published to help analyst triage clickfix incident. Investigate the query and understand how each part operates.
 
+We are investigating a user that fell for a fake captcha and executed the commands.
+
+![Alt text](../Images/Fakecaptcha.png.png)
+
 ```KQL
 // Input variables
 let VictimDeviceId = "6d99a2b880a14561f58d9b4d1292b63cbc9a51ec";
