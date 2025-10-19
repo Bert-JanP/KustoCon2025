@@ -21,7 +21,7 @@ The [ClickFix Triage Query](https://kqlquery.com/posts/investigate-clickfix/) ha
 
 We are investigating a user that fell for a fake captcha and executed the commands.
 
-![Alt text](../Images/Fakecaptcha.png.png)
+![Alt text](../Images/Fakecaptcha.png)
 
 ```KQL
 // Input variables
