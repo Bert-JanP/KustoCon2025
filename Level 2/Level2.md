@@ -36,7 +36,7 @@ The application in installed in the AppData folder, this has its reasons. Use th
 <summary>Answer</summary>
 
 ```KQL
-let Threshold = 1000;
+let Threshold = 2500;
 DeviceEvents
 | where ActionType =~ "ShellLinkCreateFileEvent"
 | where FolderPath has "Desktop"

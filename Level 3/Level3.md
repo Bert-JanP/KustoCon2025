@@ -94,7 +94,7 @@ DeviceEvents
 let ImageLoads = DeviceImageLoadEvents
 | where ActionType == 'ImageLoaded'
 | where FileName =~ "samlib.dll"
-| invoke FileProfile(InitiatingProcessSHA256, 10000)
+| invoke FileProfile(InitiatingProcessSHA256, 1000)
 | where GlobalPrevalence <= 50 or isempty(GlobalPrevalence)
 | project Timestamp, DeviceId, DeviceName, ActionType, FileName, InitiatingProcessFileName, InitiatingProcessSHA256, InitiatingProcessAccountSid;
 let NamedPipes = DeviceEvents
