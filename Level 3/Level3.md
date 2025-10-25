@@ -65,7 +65,16 @@ Based on the [triggered incident](https://security.microsoft.com/incident2/129/o
 # Persitence 
 You may already have identified that *kustocon-level3* showed up in the scheduled task results. Run the query from [level2](../Level%202/Level2.md) again to identify what scheduled task was used here to establish persitence.
 
+# Sliver Beacon Detection
 
+1. Outbound connection to C2 Server
+2. \wkssvc namedpipe created
+3. Security Access Manager loaded (samlib.dll)
+
+<details>
+<summary>Answer</summary>
+
+```KQL
 ```KQL
 let ImageLoads = DeviceImageLoadEvents
 | where FileName =~ "samlib.dll"
@@ -89,3 +98,7 @@ union NamedPipes, ImageLoads, Connection
 )
 | where Step == 's3'
 ```
+```
+</details>
+
+
