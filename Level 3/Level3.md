@@ -91,21 +91,18 @@ DeviceEvents
 <summary>Answer</summary>
 
 ```KQL
-```KQL
 let ImageLoads = DeviceImageLoadEvents
-| where ActionType == 'NamedPipeEvent'
+| where ActionType == 'ImageLoaded'
 | where FileName =~ "samlib.dll"
-| invoke FileProfile(InitiatingProcessSHA256, 1000)
+| invoke FileProfile(InitiatingProcessSHA256, 10000)
 | where GlobalPrevalence <= 50 or isempty(GlobalPrevalence)
 | project Timestamp, DeviceId, DeviceName, ActionType, FileName, InitiatingProcessFileName, InitiatingProcessSHA256, InitiatingProcessAccountSid;
 let NamedPipes = DeviceEvents
 | where ActionType == 'NamedPipeEvent'
 | where parse_json(AdditionalFields).PipeName == @"\Device\NamedPipe\wkssvc"
-| where InitiatingProcessSHA256 in (toscalar(ImageLoads | distinct InitiatingProcessSHA256))
 | project Timestamp, DeviceId, DeviceName, ActionType, FileName, InitiatingProcessFileName, InitiatingProcessSHA256, InitiatingProcessAccountSid, PipeName = parse_json(AdditionalFields).PipeName;
 let Connection = DeviceNetworkEvents
 | where ActionType == "ConnectionSuccess"
-| where InitiatingProcessSHA256 in (toscalar(ImageLoads | distinct InitiatingProcessSHA256))
 | project Timestamp, DeviceId, DeviceName, ActionType, RemoteIP, RemoteUrl, InitiatingProcessFileName, InitiatingProcessSHA256, InitiatingProcessAccountSid;
 union NamedPipes, ImageLoads, Connection
 | sort by Timestamp asc, DeviceId, InitiatingProcessSHA256
@@ -115,7 +112,6 @@ union NamedPipes, ImageLoads, Connection
     step ImageLoad: ActionType == 'ImageLoaded' and DeviceId == NamedPipe.DeviceId and InitiatingProcessSHA256 == NamedPipe.InitiatingProcessSHA256 and Timestamp between (Timestamp .. datetime_add('second', 1, NamedPipe.Timestamp)) and InitiatingProcessAccountSid == NamedPipe.InitiatingProcessAccountSid  => Step = 's3', Delta = Timestamp - NamedPipe.Timestamp;
 )
 | where Step == 's3'
-```
 ```
 </details>
 
