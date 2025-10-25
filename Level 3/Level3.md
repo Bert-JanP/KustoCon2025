@@ -1,6 +1,6 @@
 # Level 2
 
-In the third level we dive into the world of beacons. The starting point is the below image your Threat Intelligence team has recieved from the national NCSC. It is your job to hunt down the compromised workstation and determine what happened using some Kusto queries.
+In the third level we dive into the world of the intial infection. The starting point is the below image your Threat Intelligence team has recieved from the national NCSC. It is your job to hunt down the compromised workstation and determine what happened using some Kusto queries. The initial access broker is selling the access to the highest, make sure you hunt them down before someone buys the access.
 
 ![Alt text](../Images/Sliver.png)
 
