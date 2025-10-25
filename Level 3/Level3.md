@@ -35,6 +35,8 @@ let ExclusionOptions = dynamic(['ExclusionPath', 'ExclusionExtension', 'Exclusio
 DeviceProcessEvents
 | where ProcessCommandLine has_any ('Add-MpPreference','Set-MpPreference') and ProcessCommandLine has_any (ExclusionOptions)
 ```
+
+Make sure that both methods are covered in your hunting query.
 </details>
 
 <details>
@@ -51,3 +53,39 @@ let PowerShellExecutions = DeviceEvents
 union PowerShellExecutions, CommandLineExecutions
 ```
 </details>
+
+# Alerts
+Based on the [triggered incident](https://security.microsoft.com/incident2/129/overview?tid=a4be6261-d211-4df1-852e-c597a96ad887) it seems that malware was installed and we have the following indicators:
+- Malware was installed from a ZIP Archive
+- Suspicious Scheduled Task was created
+- SuspGoLang malware was identified
+
+
+
+# Persitence 
+You may already have identified that *kustocon-level3* showed up in the scheduled task results. Run the query from [level2](../Level%202/Level2.md) again to identify what scheduled task was used here to establish persitence.
+
+
+```KQL
+let ImageLoads = DeviceImageLoadEvents
+| where FileName =~ "samlib.dll"
+| invoke FileProfile(InitiatingProcessSHA256, 1000)
+| where GlobalPrevalence <= 50 or isempty(GlobalPrevalence)
+| project Timestamp, DeviceId, DeviceName, ActionType, FileName, InitiatingProcessFileName, InitiatingProcessSHA256, InitiatingProcessAccountSid;
+let NamedPipes = DeviceEvents
+| where parse_json(AdditionalFields).PipeName == @"\Device\NamedPipe\wkssvc"
+| where InitiatingProcessSHA256 in (toscalar(ImageLoads | distinct InitiatingProcessSHA256))
+| project Timestamp, DeviceId, DeviceName, ActionType, FileName, InitiatingProcessFileName, InitiatingProcessSHA256, InitiatingProcessAccountSid, PipeName = parse_json(AdditionalFields).PipeName;
+let Connection = DeviceNetworkEvents
+| where ActionType == "ConnectionSuccess"
+| where InitiatingProcessSHA256 in (toscalar(ImageLoads | distinct InitiatingProcessSHA256))
+| project Timestamp, DeviceId, DeviceName, ActionType, RemoteIP, RemoteUrl, InitiatingProcessFileName, InitiatingProcessSHA256, InitiatingProcessAccountSid;
+union NamedPipes, ImageLoads, Connection
+| sort by Timestamp asc, DeviceId, InitiatingProcessSHA256
+| scan with_match_id=Id declare (Step:string, Delta:timespan) with (
+    step InitialConnection: ActionType == "ConnectionSuccess" => Step = "s1";
+    step NamedPipe: ActionType == 'NamedPipeEvent' and DeviceId == InitialConnection.DeviceId and InitiatingProcessSHA256 == InitialConnection.InitiatingProcessSHA256 and Timestamp between (Timestamp .. datetime_add('second', 1, InitialConnection.Timestamp)) and InitiatingProcessAccountSid == InitialConnection.InitiatingProcessAccountSid => Step = 's2', Delta = Timestamp - InitialConnection.Timestamp;
+    step ImageLoad: ActionType == 'ImageLoaded' and DeviceId == NamedPipe.DeviceId and InitiatingProcessSHA256 == NamedPipe.InitiatingProcessSHA256 and Timestamp between (Timestamp .. datetime_add('second', 1, NamedPipe.Timestamp)) and InitiatingProcessAccountSid == NamedPipe.InitiatingProcessAccountSid  => Step = 's3', Delta = Timestamp - NamedPipe.Timestamp;
+)
+| where Step == 's3'
+```

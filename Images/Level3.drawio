@@ -1,0 +1,43 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36 Edg/141.0.0.0" version="28.2.5">
+  <diagram name="Page-1" id="76Ht-A-3HpLukrUAU7a-">
+    <mxGraphModel dx="1418" dy="756" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="P27SJ0Ob5sIwBmnReTWh-3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="P27SJ0Ob5sIwBmnReTWh-1" target="P27SJ0Ob5sIwBmnReTWh-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="P27SJ0Ob5sIwBmnReTWh-1" value=".ZIP downloaded from&amp;nbsp;https://github.com/Bert-JanP/KustoConJetBrains" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="90" y="260" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="P27SJ0Ob5sIwBmnReTWh-5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="P27SJ0Ob5sIwBmnReTWh-2" target="P27SJ0Ob5sIwBmnReTWh-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="P27SJ0Ob5sIwBmnReTWh-2" value="Start JetBrainsDeploy.ps1&lt;div&gt;Excludes&amp;nbsp;$env:LOCALAPPDATA\JetBrains&amp;nbsp;&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="340" y="260" width="260" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="P27SJ0Ob5sIwBmnReTWh-7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="P27SJ0Ob5sIwBmnReTWh-4" target="P27SJ0Ob5sIwBmnReTWh-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="P27SJ0Ob5sIwBmnReTWh-4" value="Start JetBrainsUpdate.ps1&lt;br&gt;&lt;br&gt;Starts scheduled task 5 min later" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="660" y="260" width="230" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="P27SJ0Ob5sIwBmnReTWh-9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="P27SJ0Ob5sIwBmnReTWh-6" target="P27SJ0Ob5sIwBmnReTWh-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="P27SJ0Ob5sIwBmnReTWh-6" value="Starts Notification.ps1&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;Creates scheduled task for persitence and downloads beacon from&amp;nbsp;offensivesimulations.blob.core.windows.net/tools/JetBrains.exe&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="567.5" y="360" width="415" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="P27SJ0Ob5sIwBmnReTWh-13" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="P27SJ0Ob5sIwBmnReTWh-8" target="P27SJ0Ob5sIwBmnReTWh-12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="P27SJ0Ob5sIwBmnReTWh-8" value="Scheduled task starts Start.ps1" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="290" y="360" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="P27SJ0Ob5sIwBmnReTWh-12" value="Start JetBrains.exe&lt;div&gt;Sliver C2 Beacon&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="90" y="360" width="120" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
