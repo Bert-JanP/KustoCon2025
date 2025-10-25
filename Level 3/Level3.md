@@ -60,16 +60,32 @@ Based on the [triggered incident](https://security.microsoft.com/incident2/129/o
 - Suspicious Scheduled Task was created
 - SuspGoLang malware was identified
 
-
-
 # Persitence 
 You may already have identified that *kustocon-level3* showed up in the scheduled task results. Run the query from [level2](../Level%202/Level2.md) again to identify what scheduled task was used here to establish persitence.
 
 # Sliver Beacon Detection
+The alerts from EDR do not indicate that a beacon has been installed, malware was detected but outbound traffic is not mapped to the incident. A sliver beacon performs a specific sequience of activities when it is executed for the first time on a device. Use the KQL [scan](https://learn.microsoft.com/en-us/kusto/query/scan-operator?view=microsoft-fabric) operator to detect the sequence of activities.
 
 1. Outbound connection to C2 Server
 2. \wkssvc namedpipe created
 3. Security Access Manager loaded (samlib.dll)
+
+<details>
+<summary>Tip 1</summary>
+Start with the following queries and filter based on the name of the Sliver Beacon.
+
+```KQL
+DeviceNetworkEvents
+| where ActionType == "ConnectionSuccess"
+
+DeviceImageLoadEvents
+| where ActionType == 'NamedPipeEvent'
+```
+DeviceEvents
+| where ActionType == 'NamedPipeEvent'
+</details>
+
+<details>
 
 <details>
 <summary>Answer</summary>
@@ -77,11 +93,13 @@ You may already have identified that *kustocon-level3* showed up in the schedule
 ```KQL
 ```KQL
 let ImageLoads = DeviceImageLoadEvents
+| where ActionType == 'NamedPipeEvent'
 | where FileName =~ "samlib.dll"
 | invoke FileProfile(InitiatingProcessSHA256, 1000)
 | where GlobalPrevalence <= 50 or isempty(GlobalPrevalence)
 | project Timestamp, DeviceId, DeviceName, ActionType, FileName, InitiatingProcessFileName, InitiatingProcessSHA256, InitiatingProcessAccountSid;
 let NamedPipes = DeviceEvents
+| where ActionType == 'NamedPipeEvent'
 | where parse_json(AdditionalFields).PipeName == @"\Device\NamedPipe\wkssvc"
 | where InitiatingProcessSHA256 in (toscalar(ImageLoads | distinct InitiatingProcessSHA256))
 | project Timestamp, DeviceId, DeviceName, ActionType, FileName, InitiatingProcessFileName, InitiatingProcessSHA256, InitiatingProcessAccountSid, PipeName = parse_json(AdditionalFields).PipeName;
