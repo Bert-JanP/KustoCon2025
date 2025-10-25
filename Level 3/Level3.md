@@ -1,0 +1,138 @@
+# Level 2
+
+In the third level we dive into the world of beacons. The starting point is the below image your Threat Intelligence team has recieved from the national NCSC. It is your job to hunt down the compromised workstation and determine what happened using some Kusto queries.
+
+![Alt text](../Images/Sliver.png)
+
+Related links:
+- https://sliver.sh/docs?name=Getting+Started
+
+### Host
+| DeviceName  | DeviceId |
+|-------|-----|
+| kustocon-level3 | 8db4ea361ed781554b9abab944109acb99d14022  |
+
+# Persitence 
+
+## .lnk file on desktop from AppData
+A user called the servicedesk because a new item appeared on his desktop. You have been called to investigate what happened.
+
+<details>
+<summary>Tip 1</summary>
+Find the table that has the ActionType ShellLinkCreateFileEvent - A specially crafted link file (.lnk) was generated. The link file contains unusual attributes that might launch malicious code along with a legitimate file or application.
+</details>
+
+<details>
+<summary>Tip 2</summary>
+The application in installed in the AppData folder, this has its reasons. Use this information to build a detection.
+</details>
+
+<details>
+<summary>Answer</summary>
+
+```KQL
+let Threshold = 1000;
+DeviceEvents
+| where ActionType =~ "ShellLinkCreateFileEvent"
+| where FolderPath has "Desktop"
+| extend ShellLinkIconPath = parse_json(AdditionalFields).ShellLinkIconPath, ShellLinkWorkingDirectory = parse_json(AdditionalFields).ShellLinkWorkingDirectory
+| where ShellLinkWorkingDirectory has "AppData"
+// Enrich data with FileProfile
+| invoke FileProfile(InitiatingProcessSHA256, 10000)
+| where GlobalPrevalence <= Threshold
+```
+</details>
+
+## Another Persitence Mechanism
+The threat actor managed to install a persitence mechanism on the endpoint. Investiagte the activities of the threat actor. Build a query to list this persitence mechanism.
+
+<details>
+<summary>Tip 1</summary>
+A quick way to investigate what a file did is to combine all EDR logs and list based on Table, ActionType, ProcessCommandLine and InitiatingProcessCommandLine. Note that this query does not scale well if you have large scale infections ;). 
+
+The malware consists out of two executables pdfclick.exe and PDFClickUpdater.exe. Use the results below to hunt down the persitence mechanism.
+
+```KQL
+let SuspiciousFileNames = dynamic(['pdfclick.exe', 'PDFClickUpdater.exe']);
+union Device*
+| where FileName in~ (SuspiciousFileNames) or InitiatingProcessFileName in~ (SuspiciousFileNames)
+| project-reorder Timestamp, Type, ActionType, ProcessCommandLine, InitiatingProcessCommandLine
+| sort by Timestamp asc 
+```
+
+If you do not find you answer here, you may want to have a look at the device timeline. Yes there are events/data in the timeline that is not forwarded to advanced hunting.
+
+</details>
+
+<details>
+<summary>Tip 2</summary>
+Have a look at the created scheduled tasks on this device.
+</details>
+
+
+<details>
+<summary>Tip 3</summary>
+Parse the fiels from the AdditionalFields column to get a good understanding of the contents of the scheduled task.
+</details>
+
+
+<details>
+<summary>Tip 4</summary>
+Parsed AdditionalFields
+
+```KQL
+| extend TaskName = parse_json(AdditionalFields).TaskName, TaskContent = tostring(parse_json(AdditionalFields).TaskContent), SubjectUserName = parse_json(AdditionalFields).SubjectUserName
+| extend Actions = extractjson("$.Actions", TaskContent), Triggers = extractjson("$.Triggers", TaskContent)
+| extend Command =  parse_json(Actions).Exec.Command, Arguments = parse_json(Actions).Exec.Arguments
+```
+</details>
+
+<details>
+<summary>Answer</summary>
+
+```KQL
+let Filters = dynamic(['AppData', '%localappdata%', '%appdata%']);
+DeviceEvents
+| where ActionType in ('ScheduledTaskCreated', 'ScheduledTaskUpdated')
+| where AdditionalFields has_any (Filters)
+| extend TaskName = parse_json(AdditionalFields).TaskName, TaskContent = tostring(parse_json(AdditionalFields).TaskContent), SubjectUserName = parse_json(AdditionalFields).SubjectUserName
+| extend Actions = extractjson("$.Actions", TaskContent), Triggers = extractjson("$.Triggers", TaskContent)
+| extend Command =  parse_json(Actions).Exec.Command, Arguments = parse_json(Actions).Exec.Arguments
+| project-reorder Timestamp, DeviceName, ActionType, InitiatingProcessAccountUpn, TaskName, Command, Arguments
+```
+
+</details>
+
+## Bonus
+It is not just a pdf converter, there is more to be found in this interesting case. The malware was able to modify its current access token. Can you identify what permissions were added to the *PDFClickUpdater.exe* process?
+
+Related link: https://downloads.volatilityfoundation.org//omfw/2012/OMFW2012_Gurkok.pdf
+
+<details>
+<summary>Tip 1</summary>
+Investigate the DeviceEvents table in combination with the ProcessPrimaryTokenModified ActionType.
+
+```KQL
+DeviceEvents
+| where ActionType == "ProcessPrimaryTokenModified"
+```
+
+</details>
+
+<details>
+<summary>Tip 2</summary>
+The application in installed in the AppData folder, this has its reasons. Use this information to build a detection.
+</details>
+
+<details>
+<summary>Answer</summary>
+
+```KQL
+let SeDebugPriv = binary_shift_left(1, 20);
+DeviceEvents
+| where ActionType == "ProcessPrimaryTokenModified"
+| extend CurrentTokenPrivEnabled = tolong(parse_json(AdditionalFields).CurrentTokenPrivEnabled), OriginalTokenPrivEnabled = tolong(parse_json(AdditionalFields).OriginalTokenPrivEnabled)
+| extend PrivilegeDiff = binary_xor(OriginalTokenPrivEnabled, CurrentTokenPrivEnabled)
+| where PrivilegeDiff == SeDebugPriv
+```
+</details>
