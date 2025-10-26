@@ -131,14 +131,17 @@ As starting point the [incident](https://security.microsoft.com/incident2/126/) 
 
 
 **Anti Forensics**
+
 The malware deleted the RunMRU registry keys after the host got infected, with this they want to remove their traces and make it harder to perform an investigation. Try to identify this anti forensic mechanism using KQL.
 
 <details>
 <summary>Tip 1</summary>
 Investigate what actions were executed from the commandline below.
+
 ```PowerShell
 "powershell.exe" -w h -ep Bypass -f C:\Users\level1\AppData\Roaming\djw\6kn9.ps1
 ```
+
 </details>
 
 
@@ -150,6 +153,7 @@ The RunMRU registry key has been deleted, you can use the below query as startin
 DeviceRegistryEvents
 | where ActionType == "RegistryValueDeleted"
 ```
+
 </details>
 
 <details>
