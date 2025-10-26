@@ -109,15 +109,20 @@ Some examples of how to use scan can be found here: https://sandyzeng.gitbook.io
 let ImageLoads = DeviceImageLoadEvents
 | where ActionType == 'ImageLoaded'
 | where FileName =~ "samlib.dll"
+| where isnotempty(InitiatingProcessSHA256)
 | invoke FileProfile(InitiatingProcessSHA256, 1000)
 | where GlobalPrevalence <= 50 or isempty(GlobalPrevalence)
 | project Timestamp, DeviceId, DeviceName, ActionType, FileName, InitiatingProcessFileName, InitiatingProcessSHA256, InitiatingProcessAccountSid;
 let NamedPipes = DeviceEvents
 | where ActionType == 'NamedPipeEvent'
+| where isnotempty(InitiatingProcessSHA256)
+| join kind=inner (ImageLoads | distinct InitiatingProcessSHA256) on InitiatingProcessSHA256
 | where parse_json(AdditionalFields).PipeName == @"\Device\NamedPipe\wkssvc"
 | project Timestamp, DeviceId, DeviceName, ActionType, FileName, InitiatingProcessFileName, InitiatingProcessSHA256, InitiatingProcessAccountSid, PipeName = parse_json(AdditionalFields).PipeName;
 let Connection = DeviceNetworkEvents
 | where ActionType == "ConnectionSuccess"
+| where isnotempty(InitiatingProcessSHA256)
+| join kind=inner (ImageLoads | distinct InitiatingProcessSHA256) on InitiatingProcessSHA256
 | project Timestamp, DeviceId, DeviceName, ActionType, RemoteIP, RemoteUrl, InitiatingProcessFileName, InitiatingProcessSHA256, InitiatingProcessAccountSid;
 union NamedPipes, ImageLoads, Connection
 | sort by Timestamp asc, DeviceId, InitiatingProcessSHA256
