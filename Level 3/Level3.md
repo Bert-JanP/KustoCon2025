@@ -80,11 +80,27 @@ DeviceNetworkEvents
 
 DeviceImageLoadEvents
 | where ActionType == 'NamedPipeEvent'
-```
+
 DeviceEvents
 | where ActionType == 'NamedPipeEvent'
+```
+
 </details>
 
+
+<details>
+<summary>Tip 2</summary>
+
+Add filters to the sub queries to make them filter only on the desired activities. Use union to combine the three different results and sort them by time.
+
+</details>
+
+<details>
+<summary>Tip 3</summary>
+
+Some examples of how to use scan can be found here: https://sandyzeng.gitbook.io/kql/kql-quick-guide/need-to-learn-later/scan
+
+</details>
 
 <details>
 <summary>Answer</summary>
