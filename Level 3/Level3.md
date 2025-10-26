@@ -85,7 +85,6 @@ DeviceEvents
 | where ActionType == 'NamedPipeEvent'
 </details>
 
-<details>
 
 <details>
 <summary>Answer</summary>
