@@ -36,7 +36,7 @@ The application in installed in the AppData folder, this has its reasons. Use th
 <summary>Answer</summary>
 
 ```KQL
-let Threshold = 2500;
+let Threshold = 2500; //The number has been increased from 1000 to 2500, due to the large amount of infections. Normally you want to keep it at 1000 or lower to prevent FPs.
 DeviceEvents
 | where ActionType =~ "ShellLinkCreateFileEvent"
 | where FolderPath has "Desktop"
@@ -127,6 +127,15 @@ DeviceEvents
 <details>
 <summary>Tip 2</summary>
 The application in installed in the AppData folder, this has its reasons. Use this information to build a detection.
+</details>
+
+<details>
+<summary>Tip 3</summary>
+The Privilege Data Model in the link below can be used to determine which privilige has been added to the token. The LUID column can be used to calculate the difference using [binary_shift_left(1, LUID)](https://learn.microsoft.com/en-us/kusto/query/binary-shift-left-function?view=microsoft-fabric).
+
+Link:
+- https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-lsad/1a92af76-d45f-42c3-b67c-f1dc61bd6ee1
+
 </details>
 
 <details>
