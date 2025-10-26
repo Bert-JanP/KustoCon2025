@@ -158,10 +158,12 @@ DeviceRegistryEvents
 
 <details>
 <summary>Answer</summary>
+
 ```KQL
 DeviceRegistryEvents
 | where ActionType == "RegistryValueDeleted"
 | where PreviousRegistryKey has "RunMRU"
 | project-reorder Timestamp, PreviousRegistryKey, PreviousRegistryValueName, PreviousRegistryValueData, InitiatingProcessCommandLine
 ```
+
 </details>
