@@ -79,10 +79,12 @@ let GlobalPrevalanceThreshold = 250;
 
 Use the device events and only filter on public IPv4 addresses.
 
+```KQL
 DeviceNetworkEvents
 | where Timestamp > ago(TimeFrame)
 | where not(ipv4_is_private(RemoteIP))
 | where ActionType == "ConnectionSuccessAggregatedReport"
+```
 
 </details>
 
