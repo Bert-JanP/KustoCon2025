@@ -1,4 +1,18 @@
-# Level 3
+# Level 4
+
+
+
+### Host
+| DeviceName  | DeviceId |
+|-------|-----|
+| kustocon-level4 | 52a24fa6e782b7525c769c84bc1b02d453a0deae |
+
+
+
+
+
+
+
 
 In the third level we dive into the world of the intial infection. The starting point is the below image your Threat Intelligence team has recieved from the national NCSC. It is your job to hunt down the compromised workstation and determine what happened using some Kusto queries. The initial access broker is selling the access to the highest, make sure you hunt them down before someone buys the access.
 
@@ -7,10 +21,7 @@ In the third level we dive into the world of the intial infection. The starting 
 Related links:
 - https://sliver.sh/docs?name=Getting+Started
 
-### Host
-| DeviceName  | DeviceId |
-|-------|-----|
-| kustocon-level3 | 8db4ea361ed781554b9abab944109acb99d14022  |
+
 
 # Defense Evasion 
 
