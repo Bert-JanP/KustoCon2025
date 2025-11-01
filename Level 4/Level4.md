@@ -54,3 +54,30 @@ DeviceNetworkEvents
 | render columnchart with(title="C2 Connections", xtitle="Time", ytitle="Number of connections")
 ```
 </details>
+
+# Beacon Hunting
+There is no one size fits all when it comes to detection beaconing activities, there are a couple reasons for this:
+1. Beacons can be configured with different timeframes to call home
+2. Beacons have different jitters to make sure that the interval between the calls is different
+3. C2 connections can be configured to a single IP/Domain or to multiple forwarders, making it even harder to detect beaconing activities.
+4. Depending on the time a threat actor has they can have very few connections per day, for example only calling home once every day would be very hard to detect.
+
+
+```
+let DeviceThreshold = 5;
+let TimeFrame = 10d;
+let ConnectionThreshold = 25;
+let GlobalPrevalanceThreshold = 250;
+DeviceNetworkEvents
+| where Timestamp > ago(TimeFrame)
+| where not(ipv4_is_private(RemoteIP))
+| where ActionType == "ConnectionSuccessAggregatedReport"
+| extend Connections = toint(parse_json(AdditionalFields).uniqueEventsAggregated)
+| summarize Total = count(), Devices = dcount(DeviceId), Domains = make_set(RemoteUrl), AvgConnections = avg(Connections) by RemoteIP, bin(TimeGenerated, 1d)
+| where AvgConnections >= ConnectionThreshold and Devices <= DeviceThreshold
+| join kind=inner (DeviceNetworkEvents
+    | where ActionType == "ConnectionSuccess"
+    | distinct RemoteIP, InitiatingProcessSHA256) on RemoteIP
+    | invoke FileProfile(InitiatingProcessSHA256)
+    | where GlobalPrevalence <= GlobalPrevalanceThreshold
+```
