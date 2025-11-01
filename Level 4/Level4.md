@@ -29,6 +29,7 @@ Use the DeviceNetworkEvents table and filter on the C2 IP.
 
 <details>
 <summary>Tip 2</summary>
+
 Use the *ConnectionSuccessAggregatedReport* ActionType to extract the number of connections for every hour, this data is located in the *AdditionalFields* column.
 
 ```KQL
