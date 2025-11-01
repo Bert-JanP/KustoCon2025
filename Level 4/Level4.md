@@ -63,7 +63,54 @@ There is no one size fits all when it comes to detection beaconing activities, t
 4. Depending on the time a threat actor has they can have very few connections per day, for example only calling home once every day would be very hard to detect.
 
 
+## Rare Executables Beaconing
+
+Use the variables below as starting point to detect beaconing activities from rare executables.
+
+```KQL
+let DeviceThreshold = 5;
+let TimeFrame = 10d;
+let ConnectionThreshold = 25;
+let GlobalPrevalanceThreshold = 250;
 ```
+
+<details>
+<summary>Tip 1</summary>
+
+Use the device events and only filter on public IPv4 addresses.
+
+DeviceNetworkEvents
+| where Timestamp > ago(TimeFrame)
+| where not(ipv4_is_private(RemoteIP))
+| where ActionType == "ConnectionSuccessAggregatedReport"
+
+</details>
+
+<details>
+<summary>Tip 2</summary>
+
+Summarize the results by day while keeping the variables mentioned above in mind.
+
+</details>
+
+
+<details>
+<summary>Tip 3</summary>
+
+Join the baseline with the ConnectionSuccess events in the DeviceNetworkEvents to get SHA256 information needed to enrich the results to find rare executables.
+
+```KQL
+DeviceNetworkEvents
+| where ActionType == "ConnectionSuccess"
+```
+
+</details>
+
+
+<details>
+<summary>Answer</summary>
+
+```KQL
 let DeviceThreshold = 5;
 let TimeFrame = 10d;
 let ConnectionThreshold = 25;
@@ -81,3 +128,7 @@ DeviceNetworkEvents
     | invoke FileProfile(InitiatingProcessSHA256)
     | where GlobalPrevalence <= GlobalPrevalanceThreshold
 ```
+
+</details>
+
+
