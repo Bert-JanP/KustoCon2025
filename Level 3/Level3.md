@@ -112,18 +112,18 @@ let ImageLoads = DeviceImageLoadEvents
 | where isnotempty(InitiatingProcessSHA256)
 | invoke FileProfile(InitiatingProcessSHA256, 1000)
 | where GlobalPrevalence <= 50 or isempty(GlobalPrevalence)
-| project Timestamp, DeviceId, DeviceName, ActionType, FileName, InitiatingProcessFileName, InitiatingProcessSHA256, InitiatingProcessAccountSid;
+| project Timestamp, DeviceId, DeviceName, ActionType, FileName, InitiatingProcessFileName, InitiatingProcessSHA256, InitiatingProcessAccountSid, ReportId;
 let NamedPipes = DeviceEvents
 | where ActionType == 'NamedPipeEvent'
 | where isnotempty(InitiatingProcessSHA256)
 | join kind=inner (ImageLoads | distinct InitiatingProcessSHA256) on InitiatingProcessSHA256
 | where parse_json(AdditionalFields).PipeName == @"\Device\NamedPipe\wkssvc"
-| project Timestamp, DeviceId, DeviceName, ActionType, FileName, InitiatingProcessFileName, InitiatingProcessSHA256, InitiatingProcessAccountSid, PipeName = parse_json(AdditionalFields).PipeName;
+| project Timestamp, DeviceId, DeviceName, ActionType, FileName, InitiatingProcessFileName, InitiatingProcessSHA256, InitiatingProcessAccountSid, PipeName = parse_json(AdditionalFields).PipeName, ReportId;
 let Connection = DeviceNetworkEvents
 | where ActionType == "ConnectionSuccess"
 | where isnotempty(InitiatingProcessSHA256)
 | join kind=inner (ImageLoads | distinct InitiatingProcessSHA256) on InitiatingProcessSHA256
-| project Timestamp, DeviceId, DeviceName, ActionType, RemoteIP, RemoteUrl, InitiatingProcessFileName, InitiatingProcessSHA256, InitiatingProcessAccountSid;
+| project Timestamp, DeviceId, DeviceName, ActionType, RemoteIP, RemoteUrl, InitiatingProcessFileName, InitiatingProcessSHA256, InitiatingProcessAccountSid, ReportId;
 union NamedPipes, ImageLoads, Connection
 | sort by Timestamp asc, DeviceId, InitiatingProcessSHA256
 | scan with_match_id=Id declare (Step:string, Delta:timespan) with (
