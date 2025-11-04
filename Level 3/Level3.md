@@ -135,4 +135,46 @@ union NamedPipes, ImageLoads, Connection
 ```
 </details>
 
+# Bonus
+The malware was downloaded from a malicious repository after the user searched for the tool JetBrains. Can you identify the repository? The respository is public.
 
+<details>
+<summary>Tip 1</summary>
+
+The answer can be found in both the AlertEvidence and DeviceEvents tables.
+
+</details>
+
+<details>
+<summary>Tip 1</summary>
+
+Have a look at the raw data related to the alerts.
+
+```
+AlertEvidence
+| where AlertId == "daf0adbc3e-6302-4a81-9370-42e1af1119a8_1"
+```
+
+</details>
+
+<details>
+<summary>Answer</summary>
+
+The content was downloaded from github.com/Bert-JanP/KustoConJetBrains
+
+```KQL
+AlertEvidence
+| where AlertId == "daf0adbc3e-6302-4a81-9370-42e1af1119a8_1"
+| extend HostUrl = parse_json(AdditionalFields).HostUrl.Url
+| project-reorder RemoteUrl, HostUrl
+```
+
+```
+DeviceEvents
+| where DeviceName == 'kustocon-level3'
+| where ActionType in ('AntivirusDetection', 'OtherAlertRelatedActivity')
+| extend Description = parse_json(AdditionalFields).Description
+| project-reorder FileOriginUrl, Description
+```
+
+</details>
