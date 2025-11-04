@@ -160,7 +160,7 @@ AlertEvidence
 <details>
 <summary>Answer</summary>
 
-The content was downloaded from github.com/Bert-JanP/KustoConJetBrains
+The content was downloaded from https://github.com/Bert-JanP/KustoConJetBrains
 
 ```KQL
 AlertEvidence
@@ -169,7 +169,7 @@ AlertEvidence
 | project-reorder RemoteUrl, HostUrl
 ```
 
-```
+```KQL
 DeviceEvents
 | where DeviceName == 'kustocon-level3'
 | where ActionType in ('AntivirusDetection', 'OtherAlertRelatedActivity')
