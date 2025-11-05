@@ -5,7 +5,7 @@
 From `AuditLogs` / `EntraIdAuditLogs` (reflected in the Stage 5 CSV), there is a single user-creation event in the incident window:
 
 - `ActivityDisplayName = "Add user"`
-- `TimeGenerated ≈ 2025-11-05 09:49:37 (UTC)`
+- `TimeGenerated ≈ 2025-11-05 08:49:37 (UTC)`
 - `TargetResources[0].type = "User"`
 - `TargetResources[0].userPrincipalName = "riley@acompanylikeyours.com"`
 - `TargetResources[0].modifiedProperties` includes:
@@ -25,7 +25,7 @@ There are no earlier audit records or sign-in records for this user in the suppl
 
 Students should confirm this by:
 
-- Searching `AuditLogs` / `EntraIdAuditLogs` for that UPN / objectId **before** `2025-11-05 09:45:00`.
+- Searching `AuditLogs` / `EntraIdAuditLogs` for that UPN / objectId **before** `2025-11-05 08:45:00`.
 - Optionally checking `SigninLogs` for any sign-in activity for `riley@acompanylikeyours.com` prior to the creation time.
 
 In the lab dataset, those searches return **no results** prior to the `"Add user"` event, supporting:
@@ -39,7 +39,7 @@ In the lab dataset, those searches return **no results** prior to the `"Add user
 Immediately after the `"Add user"` event, another audit entry appears:
 
 - `ActivityDisplayName = "Add member to role"`
-- `TimeGenerated ≈ 2025-11-05 09:49:40 (UTC)` (about three seconds later)
+- `TimeGenerated ≈ 2025-11-05 08:49:40 (UTC)` (about three seconds later)
 - `TargetResources` includes:
   - The same user object as in the `"Add user"` event (Account C).
   - Role properties where:
