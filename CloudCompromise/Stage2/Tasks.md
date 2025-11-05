@@ -371,14 +371,26 @@ An analytic concept:
     - Known-secure automation accounts  
     - Known management hosts or IP ranges (admin jump hosts, dedicated automation runners)
 
-If all three events occur for a privileged identity, this should be treated as:
+A good starting point for the MicrosoftGraphAuditing can be:
 
-```text
-High-confidence: privileged identity compromised via phishing,
-token reused from a different host, followed by automated cloud reconnaissance.
+```kql
+let WhitelistedObjects = dynamic(["obj1", "obj2"]);
+let UniqueRequestThreshold = 500; // Depends on Entra ID tentant size. You can use the function 0.5 * TotalAzure Resources to get this number. KQL: arg("").Resources | count
+let ResourceThreshold = 4;
+let ReconResources = dynamic(["organization","groups","devices","applications","users","rolemanagement","serviceprincipals"]);
+MicrosoftGraphActivityLogs
+| where RequestMethod == "GET"
+| where ResponseStatusCode == 200
+| extend ParsedUri = tostring(parse_url(RequestUri).Path)
+| extend GraphAPIPath = tolower(replace_string(ParsedUri, "//", "/"))
+| extend GraphAPIResource = tostring(split(GraphAPIPath, "/")[2])
+| where GraphAPIResource in (ReconResources)
+| extend AccountObjectId = coalesce(UserId ,ServicePrincipalId)
+// Filter whitelist
+| where not(AccountObjectId in (WhitelistedObjects))
+| summarize UniqueRequests = dcount(ClientRequestId), Requests = make_set(RequestUri, 1000), Paths = make_set(GraphAPIPath), Resources = make_set(GraphAPIResource), UniqueResourceCount = dcount(GraphAPIResource) by AccountObjectId, bin(TimeGenerated, 1h)
+| where UniqueRequests >= UniqueRequestThreshold and UniqueResourceCount >= ResourceThreshold
 ```
-
-Such an alert should be high severity and drive immediate incident response.
 
 </details>
 

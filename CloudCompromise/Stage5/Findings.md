@@ -112,11 +112,6 @@ A strong trainer summary for Task 5.3 can include:
     - Filters to tier-0 roles (Global/Company Admin, PRA, UAA, etc.),
     - Adds context if the same actor (user or SP) was previously flagged for suspicious behavior (as in Stages 2–4).
 
-That combination should be treated as **high confidence**:
 
-```text
-Attacker-created or attacker-promoted cloud admin account (Account C)
-used for long-term persistence.
-```
 
 This is intended to be a “pager-worthy” signal in a mature SOC.

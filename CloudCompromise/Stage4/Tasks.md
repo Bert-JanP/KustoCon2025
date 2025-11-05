@@ -299,14 +299,22 @@ An analytic concept:
   2. Targets Graph / ARM (`ResourceDisplayName` contains `Microsoft Graph` or `Azure Resource Manager`).  
   3. Within a short window, `AuditLogs` shows **app role assignment / consent / update** operations involving that app.
 
-- **Alert outcome**:
+A good starting point for a detection could be:
 
-```text
-High-confidence: service principal credentials likely stolen or abused,
-used from attacker infrastructure, and granted/used for elevated access.
+```kql
+AuditLogs
+| where Category == "ApplicationManagement"
+| where ActivityDisplayName in ("Add delegated permission grant", "Add app role assignment to service principal")
+| mv-expand TargetResources
+| where TargetResources.displayName == "Microsoft Graph"
+| mv-expand TargetResources.modifiedProperties
+| extend InitiatedByUserPrincipalName = InitiatedBy.user.userPrincipalName
+| extend AddedPermission = replace_string(tostring(TargetResources_modifiedProperties.newValue),'"','')
+| extend IP = todynamic(InitiatedBy).user.ipAddress
+| extend ServicePrincipalAppId = replace_string(tostring(todynamic(TargetResources).modifiedProperties[5].newValue),'"','')
+| where AddedPermission has "ReadWrite"
+| project-reorder TimeGenerated, InitiatedByUserPrincipalName, ActivityDisplayName, AddedPermission, IP, ServicePrincipalAppId
 ```
-
-This should be treated similarly to a privileged user compromise: high severity, immediate investigation and credential rotation.
 
 </details>
 
