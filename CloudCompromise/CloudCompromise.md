@@ -64,7 +64,7 @@ Each stage includes:
 - **Hints (optional)**  
   Directional guidance, not full answers.
 - **Findings.md**  
-  An expected outcome for that stage. Treat this as a solution key — only open it if you are blocked.
+  An expected outcome for that stage. Treat this as a solution key, only open it if you are blocked.
 
 For every stage, you are expected to think in terms of detections:
 - "Would we alert on this today?"

@@ -1,13 +1,7 @@
 # Stage 2 Tasks
 
-For this stage, focus your queries on:
-
-```kql
-| where TimeGenerated between(datetime(20251101205632) .. datetime(20251101211119))
-```
-
 This window covers:
-- The phishing click from Stage 1 (around `2025-11-01 20:56:32` UTC).
+- The phishing click from Stage 1 (around `2025-11-05 08:33:06` UTC).
 - The first unusual cloud sign-in.
 - Token reuse to a different cloud resource.
 - The short, intense discovery burst.
@@ -31,7 +25,7 @@ Use your cloud sign-in telemetry:
 
 Filter on:
 
-- The time window from `20251101205632` onward.
+- The time window from `20251105083306` onward.
 - The user you identified in Stage 1 (Target Account A).
 
 </details>
@@ -48,7 +42,7 @@ From the sign-in logs, extract:
 - `SessionId`
 - Any status / result fields indicating successful sign-in
 
-You want the **first successful sign-in** that occurs shortly after the phishing click at `2025-11-01 20:56:32`.
+You want the **first successful sign-in** that occurs shortly after the phishing click at `2025-11-05 08:38:06`.
 
 Make sure you write down the `SessionId` for that sign-in, you will need it in Task 2.2.
 
@@ -60,7 +54,7 @@ Make sure you write down the `SessionId` for that sign-in, you will need it in T
 One way to start is with `SigninLogs` and filter out the normal endpoint IP:
 
 ```kql
-let Click = datetime(20251101205632);
+let Click = datetime(20251105083806);
 SigninLogs
 | where TimeGenerated between(Click .. (Click + 10m))
 | where UserPrincipalName == "charly@acompanylikeyours.com"
@@ -79,16 +73,16 @@ Then pivot to `AADSignInEventsBeta` for more detail on that same sign-in.
 What you should be able to observe from the dataset:
 
 - `UserPrincipalName = "charly@acompanylikeyours.com"` (Target Account A)  
-- A successful sign-in shortly after the click, at `2025-11-01 21:01:58 (UTC)`  
+- A successful sign-in shortly after the click, at `2025-11-05 08:34:12 (UTC)`  
 - `IPAddress = "4.210.146.4"`  
 - `ResourceDisplayName = "OfficeHome"`  
-- `SessionId = "00a807b9-81e0-6e18-24f2-cb71108896cb"`  
+- `SessionId = "afb760df-808f-4ded-eb50-08de1c45ae82"`  
 
 Interpretation:
 
-- Within a few minutes of the phishing click at `20:56:32`, Target Account A’s identity is used to sign in from **4.210.146.4** at `21:01:58`.  
+- Within a few minutes of the phishing click at `08:38:06`, Target Account A’s identity is used to sign in from **4.210.146.4** at `08:34:12`.  
 - `4.210.146.4` is associated with the phishing infrastructure (the host behind `login.m365-authentication.net`), not with the user’s workstation.  
-- The `SessionId` `00a807b9-81e0-6e18-24f2-cb71108896cb` represents this cloud session; you will use it to trace additional activity.
+- The `SessionId` `afb760df-808f-4ded-eb50-08de1c45ae82` represents this cloud session; you will use it to trace additional activity.
 
 This is your first cloud-side proof that the phishing flow is being used to drive real sign-ins for this account.
 
@@ -147,10 +141,10 @@ You are looking for an event where:
 Example pattern using the known session id (strong hint):
 
 ```kql
-let Click = datetime(20251101205632);
+let Click = datetime(20251105083806);
 AADNonInteractiveUserSignInLogs
 | where TimeGenerated between(Click .. (Click + 10m))
-| where SessionId == "00a807b9-81e0-6e18-24f2-cb71108896cb"
+| where SessionId == "afb760df-808f-4ded-eb50-08de1c45ae82"
 | project TimeGenerated, UserPrincipalName, IPAddress, ResourceDisplayName, ClientAppUsed, SessionId
 | order by TimeGenerated asc
 ```
@@ -163,16 +157,16 @@ Check which IPs and resources appear for that `SessionId`.
 
 What you should be able to observe from the dataset:
 
-- A non-interactive sign-in / token use event around `2025-11-01 21:00:53 (UTC)`  
+- A non-interactive sign-in / token use event around `2025-11-05 08:36:31 (UTC)`  
 - `UserPrincipalName` still tied to Target Account A’s context  
-- `SessionId = "00a807b9-81e0-6e18-24f2-cb71108896cb"` (same as Task 2.1)  
-- `IPAddress = "77.172.65.1"` (a **different** IP than `4.210.146.4`)  
+- `SessionId = "afb760df-808f-4ded-eb50-08de1c45ae82"` (same as Task 2.1)  
+- `IPAddress = "83.97.112.20"` (a **different** IP than `4.210.146.4`)  
 - `ResourceDisplayName = "Azure Resource Manager"`  
 
 Interpretation:
 
 - The initial interactive sign-in to `OfficeHome` from `4.210.146.4` established a session (`SessionId`) and refresh token.  
-- Using that **same session**, from a **different IP** (`77.172.65.1`), the attacker exchanges the token for access to a **different resource**: Azure Resource Manager.  
+- Using that **same session**, from a **different IP** (`83.97.112.20`), the attacker exchanges the token for access to a **different resource**: Azure Resource Manager.  
 - The real user is not involved here; this is the attacker replaying alternate authentication material from their own host.
 
 You have now:
@@ -187,7 +181,7 @@ You have now:
 ## Task 2.3 – Explain the IP switch and why MFA didn’t save you
 
 Your goals in this task:
-- Explain why seeing `4.210.146.4` → `77.172.65.1` for the same `SessionId` is a strong indicator of token replay.
+- Explain why seeing `4.210.146.4` → `83.97.112.20` for the same `SessionId` is a strong indicator of token replay.
 - Articulate why MFA did not block this activity.
 
 No new KQL needed; this is a reasoning / narrative task.
@@ -211,19 +205,19 @@ Expected explanation:
 
 - The victim enters credentials (and possibly MFA) into the phishing page.  
 - The phishing infrastructure at `4.210.146.4` uses those credentials/session to perform an interactive sign-in to `OfficeHome` as the victim.  
-- The resulting refresh token / session (`SessionId = 00a807b9-81e0-6e18-24f2-cb71108896cb`) is then used from the attacker’s own system at `77.172.65.1` to mint an Azure Resource Manager token at `21:00:53`.
+- The resulting refresh token / session (`SessionId = afb760df-808f-4ded-eb50-08de1c45ae82`) is then used from the attacker’s own system at `83.97.112.20` to mint an Azure Resource Manager token at `08:36:57`.
 
 MFA doesn’t fire again because:
 
 - The attacker is not logging in **from scratch**.  
 - They are exchanging an already-issued **refresh token** for new access tokens.  
-- Refresh tokens are “post-MFA” artifacts; reusing them typically bypasses MFA challenges.
+- Refresh tokens are "post-MFA" artifacts; reusing them typically bypasses MFA challenges.
 
 So the sequence:
 
 ```text
 Click (victim) → OfficeHome sign-in (4.210.146.4, SessionId X)
-→ ARM token (77.172.65.1, same SessionId X)
+→ ARM token (83.97.112.20, same SessionId X)
 ```
 
 is a classic example of stolen token / session reuse.
@@ -235,7 +229,7 @@ is a classic example of stolen token / session reuse.
 ## Task 2.4 – Identify the cloud discovery burst
 
 Your goals in this task:
-- Show that from `77.172.65.1` there was a short, intense burst of discovery operations.
+- Show that from `83.97.112.20` there was a short, intense burst of discovery operations.
 - Prove that those operations focus on **identities, roles, and resources**, not normal user activity.
 
 <details>
@@ -247,8 +241,8 @@ Use Microosft Graph API logs such as:
 
 Filter on:
  
-- `IPAddress == "77.172.65.1"`
-- `SessionId == "00a807b9-81e0-6e18-24f2-cb71108896cb"`
+- `IPAddress == "83.97.112.20"`
+- `SessionId == "afb760df-808f-4ded-eb50-08de1c45ae82"`
 
 </details>
 
@@ -258,11 +252,11 @@ Filter on:
 Example query:
 
 ```kql
-let Click = datetime(20251101205632);
+let Click = datetime(20251105083806);
 MicrosoftGraphActivityLogs
 | where TimeGenerated between(Click .. (Click + 30m))
-| where IPAddress == "77.172.65.1"
-| where SessionId == "00a807b9-81e0-6e18-24f2-cb71108896cb"
+| where IPAddress == "83.97.112.20"
+| where SessionId == "afb760df-808f-4ded-eb50-08de1c45ae82"
 
 </details>
 
@@ -273,9 +267,9 @@ Example approach:
 
 ```kql
 MicrosoftGraphActivityLogs
-| where TimeGenerated between(datetime(20251101211116) .. datetime(20251101211118))
-| where IPAddress == "77.172.65.1"
-| where SessionId == "00a807b9-81e0-6e18-24f2-cb71108896cb"
+| where TimeGenerated between(datetime(20251105083809) .. datetime(20251105083813))
+| where IPAddress == "83.97.112.20"
+| where SessionId == "afb760df-808f-4ded-eb50-08de1c45ae82"
 | summarize Count = count() by OperationName
 | order by Count desc
 ```
@@ -292,7 +286,7 @@ Also look at:
 
 What you should be able to observe from the dataset:
 
-- All activity is from `IPAddress = "77.172.65.1"` in roughly a **2-second** window (`21:11:16`–`21:11:18`).  
+- All activity is from `IPAddress = "83.97.112.20"` in roughly a **2-second** window (`08:38:09`–`08:38:13`).  
 - A high number of API calls, including operations such as:
   - Listing directory roles and role templates.  
   - Listing directory role members.  
@@ -303,7 +297,7 @@ Characteristics:
 
 - Very short time window.  
 - Many list/read operations, almost no writes.  
-- Strong focus on **“who has which permissions where?”**.
+- Strong focus on **"who has which permissions where?"**.
 
 This is consistent with automated tools like reconaisanse performing:
 
@@ -323,7 +317,7 @@ Your goals in this task:
 - Explain what you would alert on.
 
 <details>
-<summary>Tip 2.5.1</summary>
+<summary>Notes</summary>
 
 Look at the whole sequence:
 
@@ -332,11 +326,6 @@ Look at the whole sequence:
 3. Within minutes, from that second IP, a burst of Graph / management-plane discovery operations is executed.
 
 Ask yourself: how often does that combination happen for a normal admin performing routine work?
-
-</details>
-
-<details>
-<summary>Result 2.5.1</summary>
 
 An analytic concept:
 

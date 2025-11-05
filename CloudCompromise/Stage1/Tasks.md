@@ -36,7 +36,7 @@ Suggested starting query (time-bounded):
 
 ```kql
 EmailEvents
-| where Timestamp between(datetime(20251101205500) .. datetime(20251101205700))
+| where Timestamp between(datetime(20251105083000) .. datetime(20251105083500))
 ```
 </details>
 
@@ -46,8 +46,8 @@ You can also pivot directly on the known ID:
 
 ```kql
 EmailEvents
-| where Timestamp between(datetime(20251101205500) .. datetime(20251101205700))
-| where NetworkMessageId == "7af5e108-f816-4b19-ff4e-08de1988d35e"
+| where Timestamp between(datetime(20251105083000) .. datetime(20251105083500))
+| where NetworkMessageId == "afb760df-808f-4ded-eb50-08de1c45ae82"
 ```
 </details>
 
@@ -62,7 +62,7 @@ What you should be able to observe from the dataset:
 - SenderDisplayName = `Gianni Castaldi`.
 - SenderFromAddress = `evilhacker@kustoworks.com`.
 - SenderFromDomain = `kustoworks.com`.
-- NetworkMessageId = `7af5e108-f816-4b19-ff4e-08de1988d35e`.
+- NetworkMessageId = `afb760df-808f-4ded-eb50-08de1c45ae82`.
 
 Notice how the display name looks trustworthy, but the domain is clearly external.
 </details>
@@ -101,7 +101,7 @@ Suggested starting query:
 
 ```kql
 DeviceEvents
-| where Timestamp between(datetime(20251101205500) .. datetime(20251101205700))
+| where Timestamp between(datetime(20251105083000) .. datetime(20251105083500))
 ```
 </details> 
 
@@ -114,7 +114,7 @@ What you should be able to observe from the dataset:
 - DeviceName = `vm-w11.acompanylikeyours.com`.
 - ActionType = `BrowserLaunchedToOpenUrl`.
 - InitiatingProcessCommandLine includes `olk.exe` (Outlook).
-- Timestamp around `2025-11-01 21:56:16`.
+- Timestamp around `2025-11-01 08:32:39`.
 
 This ties the phishing email to live user interaction on a corporate endpoint: Outlook launched the browser as a result of the user engaging with the message.
 </details>
@@ -152,8 +152,8 @@ Suggested starting query:
 
 ```kql
 UrlClickEvents
-| where NetworkMessageId == "7af5e108-f816-4b19-ff4e-08de1988d35e"
-| where Timestamp between(datetime(20251101205500) .. datetime(20251101205700))
+| where NetworkMessageId == "afb760df-808f-4ded-eb50-08de1c45ae82"
+| where Timestamp between(datetime(20251105083000) .. datetime(20251105083500))
 ```
 </details>
 
@@ -164,8 +164,8 @@ UrlClickEvents
 What you should be able to observe from the dataset:
 
 - ActionType = `ClickAllowed`.
-- Multiple clicks recorded within seconds (for example `21:56:21`, `21:56:22`, `21:56:32`).
-- All tied to NetworkMessageId = `7af5e108-f816-4b19-ff4e-08de1988d35e`.
+- Multiple clicks recorded within seconds (for example `08:32:40`, `08:33:06`).
+- All tied to NetworkMessageId = `afb760df-808f-4ded-eb50-08de1c45ae82`.
 - The clicked URL: `https://login.m365-authentication.net/tCMwXwBx`
 
 This confirms that:
@@ -193,7 +193,7 @@ Your goals in this task:
 
 Consider this timeline:
 
-- A privileged admin mailbox receives an email with an urgent “password reset / security incident” subject from an external domain.
+- A privileged admin mailbox receives an email with an urgent "password reset / security incident" subject from an external domain.
 - Within about a minute, the same admin’s workstation launches a browser from Outlook.
 - `UrlClickEvents` shows `ActionType = ClickAllowed` for that same `NetworkMessageId`.
 
