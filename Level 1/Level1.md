@@ -30,7 +30,7 @@ let TopXEvents = 15;
 let TimeFrame = 5m;
 // Input parameters for the forensic hunting query
 let Parameters = dynamic(['http', 'https', 'Encoded', 'EncodedCommand', '-e', '-eC', '-enc', "-w", 'iex']);
-let Executables = dynamic(["cmd", "powershell", "curl", "mshta", "msiexec"]);
+let Executables = dynamic(["cmd", "powershell", "curl", "mshta", "msiexec", "conhost"]);
 let FilteredSIDs = dynamic(["S-1-5-18"]);
 let RegKeyEvents =
  DeviceRegistryEvents
@@ -115,7 +115,7 @@ powershell -w h -nop -c "$s=Join-Path $env:APPDATA 'djw\6kn9.ps1';md (Split-Path
 
 ```KQL
 let Parameters = dynamic(['http', 'https', 'Encoded', 'EncodedCommand', '-e', '-eC', '-enc', "-w", 'iex']);
-let Executables = dynamic(["cmd", "powershell", "curl", "mshta", "msiexec"]);
+let Executables = dynamic(["cmd", "powershell", "curl", "mshta", "msiexec", "conhost"]);
 DeviceRegistryEvents
 | where ActionType == "RegistryValueSet"
 | where RegistryKey has "RunMRU"
