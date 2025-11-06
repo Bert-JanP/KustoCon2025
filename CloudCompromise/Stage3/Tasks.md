@@ -237,11 +237,15 @@ Key signals to combine:
 - Optional correlation:
   - `identity_claim_sid_g` links this activity to a suspicious session from Stage 2.
 
-Such an alert is a strong candidate for:
+A good starting point for a detection could be:
 
-```text
-High-confidence: user-context session pivoting into secret store access
-outside of historical behavior, likely as part of a cloud compromise.
+```kql
+AzureDiagnostics
+| where ResourceProvider == "MICROSOFT.KEYVAULT"
+| where ResourceType == "VAULTS"
+| where Category == "AuditEvent"
+| where OperationName == "SecretGet"
+| summarize Count = count() by _ResourceId, identity_claim_upn_s, identity_claim_sid_g
 ```
 
 </details>

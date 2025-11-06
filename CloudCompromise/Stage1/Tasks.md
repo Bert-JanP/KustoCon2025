@@ -60,7 +60,7 @@ What you should be able to observe from the dataset:
 - RecipientEmailAddress `charly@acompanylikeyours.com` → this will be `Target Account A`.
 - Subject = `Emergency Password Reset`.
 - SenderDisplayName = `Gianni Castaldi`.
-- SenderFromAddress = `evilhacker@kustoworks.com`.
+- SenderFromAddress = `gianni.castaldi@kustoworks.com`.
 - SenderFromDomain = `kustoworks.com`.
 - NetworkMessageId = `afb760df-808f-4ded-eb50-08de1c45ae82`.
 
@@ -221,12 +221,29 @@ A mature analytic here would:
   - A `ClickAllowed` action in `UrlClickEvents` with the same `NetworkMessageId` within a short window (for example 60 seconds).
   - A corresponding `BrowserLaunchedToOpenUrl` from Outlook (`olk.exe`) on that user’s device in `DeviceEvents`.
 
-This three-way correlation is rare and very high signal for:
 
-```text
-A privileged admin just clicked an urgent external reset link and opened a browser to attacker infrastructure.
+A good starting point for a detection would be: 
+
+```kql
+let SuspiciousSingleWords = dynamic([
+    // Urgency
+    "urgent", "immediate", "important", "critical", "alert", "warning", "notice", "asap", "expired", "overdue",
+    // Account / security
+    "account", "login", "signin", "signon", "credentials", "security", "verify", "verification",
+    "confirm", "update", "suspend", "suspended", "locked", "lockout",
+    // Password / MFA / auth
+    "password", "passcode", "otp", "code", "token", "mfa", "2fa", "authenticator", "verificationcode", "reset",
+    // Money / HR
+    "invoice", "payment", "payout", "payroll", "salary", "bonus", "refund", "tax", "transfer", "wire",
+    "giftcard", "voucher"
+]);
+EmailEvents
+| where EmailDirection == "Inbound"
+| where Subject has_any (SuspiciousSingleWords)
+| where not(SenderFromAddress in("mssecurity-noreply@microsoft.com", "no-reply@sharepointonline.com"))
+| join kind=inner UrlClickEvents on NetworkMessageId
+| project-away *1
 ```
-
 When you have:
 
 - Identified Target Account A,
