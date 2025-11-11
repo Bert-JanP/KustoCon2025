@@ -48,7 +48,7 @@ DeviceEvents
 ```
 </details>
 
-## Another Persitence Mechanism
+## Another Persistence Mechanism
 The threat actor managed to install a persitence mechanism on the endpoint. Investiagte the activities of the threat actor. Build a query to list this persitence mechanism.
 
 <details>
