@@ -60,7 +60,7 @@ Based on the [triggered incident](https://security.microsoft.com/incident2/129/o
 - Suspicious Scheduled Task was created
 - SuspGoLang malware was identified
 
-# Persitence 
+# Persistence 
 You may already have identified that *kustocon-level3* showed up in the scheduled task results. Run the query from [level2](../Level%202/Level2.md) again to identify what scheduled task was used here to establish persitence.
 
 # Sliver Beacon Detection

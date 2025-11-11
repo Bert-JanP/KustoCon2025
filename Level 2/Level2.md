@@ -17,7 +17,7 @@ Related links:
 |-------|-----|
 | kustocon-level2 | 0dc945819ed7b009e2a6c943dd1008e8524734da  |
 
-# Persitence 
+# Persistence 
 
 ## .lnk file on desktop from AppData
 A user called the servicedesk because a new item appeared on his desktop. You have been called to investigate what happened.
@@ -48,7 +48,7 @@ DeviceEvents
 ```
 </details>
 
-## Another Persitence Mechanism
+## Another Persistence Mechanism
 The threat actor managed to install a persitence mechanism on the endpoint. Investiagte the activities of the threat actor. Build a query to list this persitence mechanism.
 
 <details>
